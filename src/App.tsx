@@ -1,34 +1,23 @@
-import { useState } from "react";
-import { Comments } from "./comments/Comments";
-import { getComments } from "./service/comment.service";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Input from "./comments/Input";
 
 const App = () => {
-  const [comments, setComments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const handleChanges = async (id: string) => {
-    if (!id) setComments([]);
-    else {
-      setLoading(true);
-      const data = await getComments(id);
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchIntervalInBackground: false,
+        cacheTime: 10_000,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
-      setComments(data);
-      setLoading(false);
-    }
-  };
   return (
-    <>
-      <input onChange={(e) => handleChanges(e.target.value)} />
-
-      {loading ? (
-        <div>Loading</div>
-      ) : (
-        <div>
-          {comments.map(({ body, email }, index) => (
-            <Comments body={body} email={email} key={index} />
-          ))}
-        </div>
-      )}
-    </>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <Input />
+    </QueryClientProvider>
   );
 };
 
